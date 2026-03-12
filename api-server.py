@@ -14,6 +14,11 @@ import asyncio
 from typing import Optional, List, Dict
 from datetime import datetime
 import aiofiles
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="OpenClaw API Server")
 
@@ -288,6 +293,38 @@ async def export_session(session_id: str):
         filename=f"session_{session_id}.jsonl",
         media_type="application/x-ndjson"
     )
+
+
+@app.get("/sessions/{session_id}/history")
+async def get_session_history(session_id: str):
+    """Get complete session history including all tool calls"""
+    session_file = get_session_file_path(session_id)
+
+    if not os.path.exists(session_file):
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    try:
+        # Read all lines from the session JSONL file
+        history = []
+        async with aiofiles.open(session_file, 'r') as f:
+            async for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        record = json.loads(line)
+                        history.append(record)
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Failed to parse line in session {session_id}: {e}")
+                        continue
+
+        return {
+            "session_id": session_id,
+            "total_records": len(history),
+            "history": history
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read session history: {str(e)}")
 
 
 @app.delete("/sessions/{session_id}")

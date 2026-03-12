@@ -210,6 +210,22 @@ class BatchRunner:
                         "error": str(e)
                     })
 
+            # 任务完成后，导出完整的 session history (包含所有工具调用轨迹)
+            full_session_history = None
+            if session_id:
+                try:
+                    print(f"[{record_id}] 导出完整 session 历史记录...")
+                    async with session.get(
+                        f"http://localhost:{api_port}/sessions/{session_id}/history",
+                        timeout=aiohttp.ClientTimeout(total=30)
+                    ) as resp:
+                        if resp.status == 200:
+                            full_session_history = await resp.json()
+                        else:
+                            logger.warning(f"[{record_id}] 获取 session 历史失败: HTTP {resp.status}")
+                except Exception as e:
+                    logger.error(f"[{record_id}] 导出 session 历史失败: {e}")
+
         # 构建结果
         result = {
             "record_id": record_id,
@@ -218,6 +234,7 @@ class BatchRunner:
             "category": task['category'],
             "total_turns": len(turns),
             "turns": responses,
+            "full_session_history": full_session_history,  # 包含完整的工具调用轨迹
             "original_task": task
         }
 
@@ -225,10 +242,24 @@ class BatchRunner:
 
     def export_result(self, result: Dict):
         """导出单个任务结果"""
-        output_file = self.output_dir / f"{result['record_id']}.json"
+        record_id = result['record_id']
+
+        # 导出简要结果（保持向后兼容）
+        output_file = self.output_dir / f"{record_id}.json"
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
         print(f"✓ 导出结果: {output_file}")
+
+        # 如果有完整的 session history，单独导出为 JSONL
+        if result.get('full_session_history'):
+            history_file = self.output_dir / f"{record_id}_session.jsonl"
+            try:
+                with open(history_file, 'w', encoding='utf-8') as f:
+                    for record in result['full_session_history']['history']:
+                        f.write(json.dumps(record, ensure_ascii=False) + '\n')
+                print(f"✓ 导出完整历史: {history_file}")
+            except Exception as e:
+                logger.error(f"导出完整历史失败: {e}")
 
     async def run_batch(self, tasks: List[Dict]):
         """运行一个批次（异步并发）"""
