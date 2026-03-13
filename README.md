@@ -1,4 +1,4 @@
-# ClawMonitor - AI Agent 容器化监控平台
+# ClawMonitor - AI Agent Monitor
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 **🚀 The Ultimate OpenClaw Monitoring & Execution Platform**
 
-**容器化隔离 · 交互式前端 · 批量化运行 · 记忆监测导出**
+**Containerized isolation · Interactive front-end · Batch execution · Memory monitoring export**
 
 English | [简体中文](README_CN.md)
 
