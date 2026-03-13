@@ -1,4 +1,4 @@
-# ClawMonitor - OpenClaw Batch Task Scheduler
+# ClawMonitor - AI Agent 容器化监控平台
 
 <div align="center">
 
@@ -6,43 +6,96 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**High-performance asynchronous batch task execution framework for OpenClaw**
+**🚀 The Ultimate OpenClaw Monitoring & Execution Platform**
+
+**容器化隔离 · 交互式前端 · 批量化运行 · 记忆监测导出**
 
 English | [简体中文](README_CN.md)
+
+![Demo Interface](pic/demo.jpg)
 
 </div>
 
 ---
 
-## 📖 Introduction
+## 🎯 Why ClawMonitor?
 
-ClawMonitor is a Docker-based batch task scheduler designed for [OpenClaw](https://github.com/openclaw/openclaw). Key features:
+ClawMonitor is a comprehensive monitoring and execution platform for [OpenClaw](https://github.com/openclaw/openclaw), offering **four core capabilities** that set it apart:
 
-- ✨ **Async Concurrency** - True parallel task execution with configurable concurrency
-- 🔄 **Smart Retry** - Configurable exponential backoff retry strategy
-- 🐳 **Docker Isolation** - Each task runs in an isolated container
-- 📊 **Progress Tracking** - Real-time task execution monitoring
-- 💾 **Result Persistence** - Automatic JSON export of execution results
+### 🐳 **Container Isolation**
+- Each task runs in an isolated Docker container
+- Zero interference between tasks
+- Easy to scale and manage
+- Clean environment for every execution
+
+### 💬 **Interactive Web Frontend**
+- Beautiful chat interface for real-time interaction
+- Built-in terminal for direct container access
+- Session history export functionality
+- Memory monitoring and visualization
+
+### ⚡ **Batch Execution**
+- True async parallel task processing
+- Configurable concurrency (3-100+ tasks)
+- Smart retry with exponential backoff
+- Automatic result persistence
+
+### 📊 **Memory Monitoring & Export**
+- Track agent conversation history
+- Export sessions in JSONL format
+- Analyze multi-turn interactions
+- Monitor tool usage and responses
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### ⭐ Two Ways to Use ClawMonitor
 
-Before you begin, ensure you have:
+#### Option 1: Interactive Demo (Recommended for Getting Started)
+Perfect for testing, development, and single-task interaction.
+
+```bash
+# 1. Build Docker image
+docker build --no-cache -t clawmonitor-openclaw:latest -f Dockerfile.openclaw .
+
+# 2. Configure API keys in config.yaml
+# Edit api.key, api.url, and gateway.auth_token
+
+# 3. Start interactive demo
+python demo.py
+```
+
+Your browser will automatically open to `http://localhost:8080` with:
+- 💬 **Chat Interface** - Real-time interaction with OpenClaw agent
+- ⌨️ **Container Terminal** - Direct access to container shell
+- 📥 **Export Function** - Download conversation history in JSONL format
+
+#### Option 2: Batch Runner (For Large-Scale Tasks)
+Perfect for running hundreds of tasks in parallel.
+
+```bash
+# 1. Prepare task file (decomposed_epoch1.jsonl)
+# 2. Run batch execution
+python batch_runner.py
+
+# 3. Monitor with visual dashboard (optional)
+python visual_batch_runner.py
+```
+
+### Prerequisites
 
 1. **Docker** (Required)
    - macOS: [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/)
    - Windows: [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
    - Linux: [Docker Engine](https://docs.docker.com/engine/install/)
 
-2. **Python 3.12+** (For running the batch scheduler)
+2. **Python 3.12+**
    ```bash
    python --version  # Verify Python version
    ```
 
-3. **Conda/Miniconda** (Recommended for environment management)
+3. **Conda/Miniconda** (Recommended)
    - Download: [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 ### Installation
@@ -100,7 +153,7 @@ max_concurrent: 5                    # Number of concurrent tasks (3-10 recommen
 
 ```bash
 # Build OpenClaw image
-docker build -t clawmonitor-openclaw:latest -f Dockerfile.openclaw .
+docker build --no-cache -t clawmonitor-openclaw:latest -f Dockerfile.openclaw .
 ```
 
 #### 5. Prepare Task Data
@@ -212,34 +265,85 @@ features:
 
 ## 🔧 Usage Guide
 
-### Basic Usage
+### Interactive Demo Usage
 
-#### 1. Single Batch Execution
+#### 1. Start Demo Server
 
 ```bash
-# Use default config (config.yaml) and task file (decomposed_epoch1.jsonl)
+python demo.py
+```
+
+The demo will:
+- Automatically start an OpenClaw container
+- Launch web interface at `http://localhost:8080`
+- Open your browser automatically
+- Wait for container to be ready
+
+#### 2. Chat with Agent
+
+Simply type your questions in the chat interface:
+- Ask the agent to perform tasks
+- Execute file operations
+- Write and run code
+- Use built-in tools
+
+#### 3. Access Container Terminal
+
+Click the **Terminal** button to:
+- Run shell commands directly
+- Inspect container filesystem
+- Debug issues in real-time
+- Monitor process status
+
+#### 4. Export Session History
+
+Click the **Export** button to:
+- Download complete conversation in JSONL
+- Save to custom location (optional)
+- Analyze agent behavior offline
+- Share results with team
+
+### Batch Runner Usage
+
+#### 1. Basic Batch Execution
+
+```bash
+# Use default config and task file
 python batch_runner.py
 ```
 
-#### 2. Custom Config and Task Files
+#### 2. Visual Batch Dashboard
 
-Modify `batch_runner.py` initialization:
+```bash
+# Run with real-time visual monitoring
+python visual_batch_runner.py
+```
+
+Features:
+- Live progress tracking
+- Task status visualization
+- Error highlighting
+- Concurrent execution monitoring
+
+#### 3. Custom Configuration
+
+Modify `batch_runner.py`:
 
 ```python
 runner = BatchRunner(
-    config_path="custom_config.yaml",    # Custom config
-    jsonl_path="my_tasks.jsonl"          # Custom task file
+    config_path="custom_config.yaml",
+    jsonl_path="my_tasks.jsonl"
 )
 runner.run()
 ```
 
-#### 3. View Execution Logs
+#### 4. Monitor Execution
 
 ```bash
-# Real-time container logs
+# View container logs
 docker logs -f openclaw-task-<record_id>
 
-# List all running containers
+# List running containers
 docker ps
 ```
 
@@ -300,28 +404,60 @@ docker-compose down
 
 ```
 ClawMonitor/
-├── batch_runner.py              # Batch task scheduler (core)
-├── api-server.py                # FastAPI server
-├── config.yaml                  # Configuration file (API keys required)
-├── requirements.txt             # Python dependencies
-├── environment.yml              # Conda environment file
-├── decomposed_epoch1.jsonl      # Task data file
-├── Dockerfile.openclaw          # Docker image build file
-├── docker-compose.yml           # Docker compose file
-├── entrypoint.sh                # Container entry script
-├── .gitignore                   # Git ignore rules
-└── batch_output/                # Task output directory (auto-created)
-    ├── task-001.json
-    ├── task-002.json
+├── demo.py                      # 🎨 Interactive web demo (NEW!)
+├── batch_runner.py              # ⚡ Batch task scheduler
+├── visual_batch_runner.py       # 📊 Visual batch dashboard (NEW!)
+├── batch_evaluator.py           # 📈 Batch result evaluator (NEW!)
+├── analyze_session_history.py   # 🔍 Session history analyzer (NEW!)
+├── api-server.py                # 🌐 FastAPI server
+├── config.yaml                  # ⚙️ Configuration file
+├── requirements.txt             # 📦 Python dependencies
+├── environment.yml              # 🐍 Conda environment
+├── decomposed_epoch1.jsonl      # 📋 Task data file
+├── Dockerfile.openclaw          # 🐳 Docker image
+├── docker-compose.yml           # 🚢 Docker compose
+├── entrypoint.sh                # 🔧 Container entrypoint
+├── pic/                         # 🖼️ Screenshots
+│   └── demo.jpg                 # Demo interface screenshot
+└── batch_output/                # 💾 Output directory
+    ├── task-001.json            # Session results
+    ├── task-001_session.jsonl   # Full conversation history
     └── ...
 ```
 
 ---
 
+## 🎨 Interactive Demo Features
+
+The `demo.py` provides a full-featured web interface:
+
+### 1. **Chat Mode** 💬
+- Real-time interaction with OpenClaw agent
+- Markdown rendering for formatted responses
+- Typing indicators for better UX
+- Session persistence across interactions
+
+### 2. **Terminal Mode** ⌨️
+- Direct shell access to running container
+- Execute commands in real-time
+- View stdout/stderr separately
+- Built-in command history
+
+### 3. **Export Functionality** 📥
+- Download complete conversation history
+- JSONL format for easy analysis
+- Includes all agent tool calls and responses
+- Custom save path support
+
+---
+
 ## 📊 Output Format
 
-Each completed task generates a JSON file in `batch_output/`:
+### Task Results (JSON)
 
+Each task generates two files in `batch_output/`:
+
+**1. Summary File** (`task-001.json`):
 ```json
 {
   "record_id": "task-001",
@@ -333,19 +469,35 @@ Each completed task generates a JSON file in `batch_output/`:
     {
       "turn": 1,
       "thought": "Analyze requirements",
-      "prompt": "Please help me analyze this requirement",
-      "response": "Agent's response content..."
-    },
-    {
-      "turn": 2,
-      "thought": "Implement feature",
-      "prompt": "Now start implementation",
-      "response": "Agent's implementation content..."
+      "prompt": "Please help me analyze",
+      "response": "Agent's response..."
     }
   ],
   "original_task": { ... }
 }
 ```
+
+**2. Full Session History** (`task-001_session.jsonl`):
+```jsonl
+{"role": "user", "content": "Please analyze...", "timestamp": "..."}
+{"role": "assistant", "content": "Let me help...", "tool_calls": [...]}
+{"role": "tool", "tool_call_id": "...", "content": "..."}
+```
+
+### Session Analysis
+
+Use the analyzer to extract insights:
+
+```bash
+python analyze_session_history.py batch_output/task-001_session.jsonl
+```
+
+Output:
+- Total turns count
+- Tool usage statistics
+- Token consumption
+- Error/retry analysis
+- Timeline visualization
 
 ---
 

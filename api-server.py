@@ -15,6 +15,8 @@ from typing import Optional, List, Dict
 from datetime import datetime
 import aiofiles
 import logging
+import random
+from functools import wraps
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +32,43 @@ GATEWAY_URL = "http://localhost:18789"
 # In-memory session tracking
 active_sessions: Dict[str, dict] = {}
 
+
+def async_retry(max_attempts=3, base_delay=1.0, max_delay=10.0, backoff_factor=2.0, jitter=True, exceptions=(Exception,)):
+    """
+    通用异步 retry 装饰器
+    
+    Args:
+        max_attempts: 最大尝试次数
+        base_delay: 初始等待时间（秒）
+        max_delay: 最大等待时间
+        backoff_factor: 指数退避系数
+        jitter: 是否加随机抖动
+        exceptions: 哪些异常触发重试，默认所有异常
+    """
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            last_exception = None
+
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return await func(*args, **kwargs)
+                except exceptions as e:
+                    last_exception = e
+
+                    if attempt == max_attempts:
+                        logger.error(f"[Retry] {func.__name__} failed after {max_attempts} attempts: {e}")
+                        raise
+
+                    delay = min(base_delay * (backoff_factor ** (attempt - 1)), max_delay)
+                    if jitter:
+                        delay *= (0.5 + random.random())
+
+                    logger.warning(f"[Retry] {func.__name__} attempt {attempt}/{max_attempts} failed: {e}, retrying in {delay:.2f}s...")
+                    await asyncio.sleep(delay)
+
+        return wrapper
+    return decorator
 
 class PromptRequest(BaseModel):
     session_id: Optional[str] = None
@@ -69,7 +108,7 @@ def get_all_session_files() -> List[str]:
     # Exclude sessions.json if present
     return [f for f in files if not f.endswith("sessions.json")]
 
-
+@async_retry(max_attempts=3, base_delay=0.2, exceptions=(IOError, OSError))
 async def read_session_metadata(session_id: str) -> Optional[Dict]:
     """Read session metadata from sessions.json"""
     sessions_json_path = os.path.join(SESSIONS_DIR, "sessions.json")
@@ -91,7 +130,7 @@ async def read_session_metadata(session_id: str) -> Optional[Dict]:
 
     return None
 
-
+@async_retry(max_attempts=3, base_delay=0.2, exceptions=(IOError, OSError))
 async def count_session_messages(session_file: str) -> int:
     """Count messages in a session JSONL file"""
     if not os.path.exists(session_file):
@@ -107,7 +146,7 @@ async def count_session_messages(session_file: str) -> int:
     except Exception:
         return 0
 
-
+@async_retry(max_attempts=5, base_delay=1.0, exceptions=(Exception,))
 async def send_prompt_to_openclaw(session_id: str, prompt: str) -> Dict:
     """Send a prompt to OpenClaw via CLI"""
     try:

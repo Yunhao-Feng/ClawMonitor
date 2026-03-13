@@ -1,4 +1,4 @@
-# ClawMonitor - OpenClaw 批量任务调度系统
+# ClawMonitor - AI Agent 容器化监控平台
 
 <div align="center">
 
@@ -6,27 +6,82 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**高性能异步并发的 OpenClaw 任务批量执行框架**
+**🚀 终极 OpenClaw 监控与执行平台**
+
+**容器化隔离 · 交互式前端 · 批量化运行 · 记忆监测导出**
 
 [English](README.md) | 简体中文
+
+![演示界面](pic/demo.jpg)
 
 </div>
 
 ---
 
-## 📖 项目简介
+## 🎯 为什么选择 ClawMonitor？
 
-ClawMonitor 是一个基于 Docker 容器的批量任务调度系统，专为 [OpenClaw](https://github.com/openclaw/openclaw) 设计。它支持：
+ClawMonitor 是为 [OpenClaw](https://github.com/openclaw/openclaw) 打造的综合监控与执行平台，提供**四大核心能力**：
 
-- ✨ **异步并发执行** - 真正的并发任务处理，支持自定义并发数
-- 🔄 **智能重试机制** - 可配置的指数退避重试策略
-- 🐳 **Docker 隔离** - 每个任务运行在独立的容器中
-- 📊 **进度追踪** - 实时查看任务执行状态
-- 💾 **结果持久化** - 自动保存任务执行结果到 JSON
+### 🐳 **容器化隔离**
+- 每个任务运行在独立的 Docker 容器中
+- 任务之间零干扰
+- 易于扩展和管理
+- 每次执行都有干净的环境
+
+### 💬 **交互式 Web 前端**
+- 精美的聊天界面，实时交互
+- 内置终端，直接访问容器
+- 会话历史导出功能
+- 记忆监测与可视化
+
+### ⚡ **批量执行**
+- 真正的异步并行任务处理
+- 可配置并发数（3-100+ 任务）
+- 智能重试与指数退避
+- 自动结果持久化
+
+### 📊 **记忆监测与导出**
+- 追踪 agent 对话历史
+- 导出会话为 JSONL 格式
+- 分析多轮交互
+- 监控工具使用与响应
 
 ---
 
 ## 🚀 快速开始
+
+### ⭐ ClawMonitor 的两种使用方式
+
+#### 方式一：交互式演示（推荐入门）
+适合测试、开发和单任务交互。
+
+```bash
+# 1. 构建 Docker 镜像
+docker build --no-cache -t clawmonitor-openclaw:latest -f Dockerfile.openclaw .
+
+# 2. 在 config.yaml 中配置 API 密钥
+# 编辑 api.key、api.url 和 gateway.auth_token
+
+# 3. 启动交互式演示
+python demo.py
+```
+
+浏览器将自动打开 `http://localhost:8080`，提供：
+- 💬 **聊天界面** - 与 OpenClaw agent 实时交互
+- ⌨️ **容器终端** - 直接访问容器 shell
+- 📥 **导出功能** - 下载 JSONL 格式的对话历史
+
+#### 方式二：批量运行器（适合大规模任务）
+适合并行运行数百个任务。
+
+```bash
+# 1. 准备任务文件（decomposed_epoch1.jsonl）
+# 2. 运行批量执行
+python batch_runner.py
+
+# 3. 使用可视化仪表板监控（可选）
+python visual_batch_runner.py
+```
 
 ### 前置要求
 
@@ -212,34 +267,85 @@ features:
 
 ## 🔧 使用指南
 
-### 基础用法
+### 交互式演示使用方法
 
-#### 1. 单次批量执行
+#### 1. 启动演示服务器
 
 ```bash
-# 使用默认配置文件 (config.yaml) 和默认任务文件 (decomposed_epoch1.jsonl)
+python demo.py
+```
+
+演示程序将：
+- 自动启动 OpenClaw 容器
+- 在 `http://localhost:8080` 启动 Web 界面
+- 自动打开浏览器
+- 等待容器就绪
+
+#### 2. 与 Agent 聊天
+
+只需在聊天界面输入你的问题：
+- 要求 agent 执行任务
+- 执行文件操作
+- 编写和运行代码
+- 使用内置工具
+
+#### 3. 访问容器终端
+
+点击 **终端** 按钮可以：
+- 直接运行 shell 命令
+- 检查容器文件系统
+- 实时调试问题
+- 监控进程状态
+
+#### 4. 导出会话历史
+
+点击 **导出** 按钮可以：
+- 下载完整的 JSONL 格式对话
+- 保存到自定义位置（可选）
+- 离线分析 agent 行为
+- 与团队分享结果
+
+### 批量运行器使用方法
+
+#### 1. 基础批量执行
+
+```bash
+# 使用默认配置和任务文件
 python batch_runner.py
 ```
 
-#### 2. 指定配置和任务文件
+#### 2. 可视化批量仪表板
 
-修改 `batch_runner.py` 的初始化参数：
+```bash
+# 使用实时可视化监控运行
+python visual_batch_runner.py
+```
+
+功能：
+- 实时进度追踪
+- 任务状态可视化
+- 错误高亮显示
+- 并发执行监控
+
+#### 3. 自定义配置
+
+修改 `batch_runner.py`：
 
 ```python
 runner = BatchRunner(
-    config_path="custom_config.yaml",    # 自定义配置
-    jsonl_path="my_tasks.jsonl"          # 自定义任务文件
+    config_path="custom_config.yaml",
+    jsonl_path="my_tasks.jsonl"
 )
 runner.run()
 ```
 
-#### 3. 查看执行日志
+#### 4. 监控执行
 
 ```bash
-# 实时查看容器日志
+# 查看容器日志
 docker logs -f openclaw-task-<record_id>
 
-# 查看所有运行中的容器
+# 列出运行中的容器
 docker ps
 ```
 
@@ -300,28 +406,60 @@ docker-compose down
 
 ```
 ClawMonitor/
-├── batch_runner.py              # 批量任务调度器（核心）
-├── api-server.py                # FastAPI 服务器
-├── config.yaml                  # 配置文件（需填写 API 密钥）
-├── requirements.txt             # Python 依赖
-├── environment.yml              # Conda 环境文件
-├── decomposed_epoch1.jsonl      # 任务数据文件
-├── Dockerfile.openclaw          # Docker 镜像构建文件
-├── docker-compose.yml           # Docker 编排文件
-├── entrypoint.sh                # 容器启动脚本
-├── .gitignore                   # Git 忽略规则
-└── batch_output/                # 任务输出目录（自动创建）
-    ├── task-001.json
-    ├── task-002.json
+├── demo.py                      # 🎨 交互式 Web 演示（新增！）
+├── batch_runner.py              # ⚡ 批量任务调度器
+├── visual_batch_runner.py       # 📊 可视化批量仪表板（新增！）
+├── batch_evaluator.py           # 📈 批量结果评估器（新增！）
+├── analyze_session_history.py   # 🔍 会话历史分析器（新增！）
+├── api-server.py                # 🌐 FastAPI 服务器
+├── config.yaml                  # ⚙️ 配置文件
+├── requirements.txt             # 📦 Python 依赖
+├── environment.yml              # 🐍 Conda 环境
+├── decomposed_epoch1.jsonl      # 📋 任务数据文件
+├── Dockerfile.openclaw          # 🐳 Docker 镜像
+├── docker-compose.yml           # 🚢 Docker compose
+├── entrypoint.sh                # 🔧 容器入口脚本
+├── pic/                         # 🖼️ 截图
+│   └── demo.jpg                 # 演示界面截图
+└── batch_output/                # 💾 输出目录
+    ├── task-001.json            # 会话结果
+    ├── task-001_session.jsonl   # 完整对话历史
     └── ...
 ```
 
 ---
 
+## 🎨 交互式演示功能
+
+`demo.py` 提供了功能完整的 Web 界面：
+
+### 1. **聊天模式** 💬
+- 与 OpenClaw agent 实时交互
+- Markdown 渲染格式化响应
+- 输入指示器提升用户体验
+- 跨交互的会话持久化
+
+### 2. **终端模式** ⌨️
+- 直接访问运行中容器的 shell
+- 实时执行命令
+- 分别查看 stdout/stderr
+- 内置命令历史
+
+### 3. **导出功能** 📥
+- 下载完整对话历史
+- JSONL 格式便于分析
+- 包含所有 agent 工具调用和响应
+- 支持自定义保存路径
+
+---
+
 ## 📊 输出格式
 
-每个任务完成后会在 `batch_output/` 目录生成对应的 JSON 文件：
+### 任务结果（JSON）
 
+每个任务在 `batch_output/` 目录生成两个文件：
+
+**1. 摘要文件**（`task-001.json`）：
 ```json
 {
   "record_id": "task-001",
@@ -333,19 +471,35 @@ ClawMonitor/
     {
       "turn": 1,
       "thought": "分析需求",
-      "prompt": "请帮我分析这个需求",
-      "response": "Agent 的回复内容..."
-    },
-    {
-      "turn": 2,
-      "thought": "实现功能",
-      "prompt": "现在开始实现",
-      "response": "Agent 的实现内容..."
+      "prompt": "请帮我分析",
+      "response": "Agent 的响应..."
     }
   ],
   "original_task": { ... }
 }
 ```
+
+**2. 完整会话历史**（`task-001_session.jsonl`）：
+```jsonl
+{"role": "user", "content": "请分析...", "timestamp": "..."}
+{"role": "assistant", "content": "让我帮你...", "tool_calls": [...]}
+{"role": "tool", "tool_call_id": "...", "content": "..."}
+```
+
+### 会话分析
+
+使用分析器提取洞察：
+
+```bash
+python analyze_session_history.py batch_output/task-001_session.jsonl
+```
+
+输出：
+- 总轮次计数
+- 工具使用统计
+- Token 消耗
+- 错误/重试分析
+- 时间线可视化
 
 ---
 

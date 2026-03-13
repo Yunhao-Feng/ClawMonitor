@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class BatchRunner:
-    def __init__(self, config_path="config.yaml", jsonl_path="decomposed_epoch1.jsonl"):
+    def __init__(self, config_path="config.yaml", jsonl_path="Trasfer_decomposed_harm.jsonl"):
         # 加载配置
         with open(config_path) as f:
             self.config = yaml.safe_load(f)

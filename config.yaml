@@ -53,7 +53,7 @@ tailscale:
   mode: "off"
   reset_on_exit: false
 
-max_concurrent: 5
+max_concurrent: 10
 
 # ============ 批量任务重试配置 ============
 retry:
