@@ -44,7 +44,6 @@ COPY api-server.py /app/api-server.py
 COPY entrypoint.sh /app/entrypoint.sh
 
 
-RUN printf '%s\n' 'defaults' 'auth           on' 'tls            on' 'tls_starttls   off' 'tls_trust_file /etc/ssl/certs/ca-certificates.crt' 'logfile        /var/log/msmtp.log' 'set_from_header on' '' 'account        default' 'host           smtp.163.com' 'port           465' 'from           alctrain@163.com' 'user           alctrain@163.com' 'password       LUpTRiMWj9mdVV3r' > /etc/msmtprc && chmod 600 /etc/msmtprc
 RUN chmod +x /app/entrypoint.sh
 
 # Expose ports
